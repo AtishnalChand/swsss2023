@@ -40,12 +40,13 @@ print(data_arr)
 TODO: Writing and reading numpy file
 """
 # Save the data_arr variable into a .npy file
-
+np.save('test_np_save.npy', data_arr)
 
 # Load data from a .npy file
-
+data_arr_loaded = np.load('test_np_save.npy')
 
 # Verify that the loaded data matches the initial data
+print(np.equal(data_arr, data_arr_loaded))
 
 #%%
 """
@@ -56,10 +57,15 @@ data_arr2 = np.random.randn(8,1)
 print(data_arr2)
 
 # Save the data_arr and data_arr2 variables into a .npz file
-
+np.savez('test_savez.npz', data_arr, data_arr2)
 # Load the numpy zip file
-
+npzfile = np.load('test_savez.npz')
 # Verify that the loaded data matches the initial data
+
+
+# Verification that the loaded data matches the initial data exactly
+print((data_arr==npzfile['arr_0']).all())
+print((data_arr2==npzfile['arr_1']).all())
 
 #%%
 """
@@ -106,7 +112,7 @@ Loading data from Matlab
 import numpy as np
 from scipy.io import loadmat
 
-dir_density_Jb2008 = 'Data/JB2008/2002_JB2008_density.mat'
+dir_density_Jb2008 = 'C:/Users/z5327332/Documents/Peng_Data/JB2008-20230726T173319Z-001/JB2008/2002_JB2008_density.mat'
 
 # Load Density Data
 try:
@@ -142,7 +148,8 @@ nofLst_JB2008 = localSolarTimes_JB2008.shape[0]
 nofLat_JB2008 = latitudes_JB2008.shape[0]
 
 # We can also impose additional constratints such as forcing the values to be integers.
-time_array_JB2008 = np.linspace(0,8760,5, dtype = int)
+time_array_JB2008 = np.linspace(0,8759,5, dtype = int)
+
 
 # For the dataset that we will be working with today, you will need to reshape 
 # them to be lst x lat x altitude
@@ -161,12 +168,54 @@ import matplotlib.pyplot as plt
 alt = 400
 hi = np.where(altitudes_JB2008==alt)
 
+# Create a canvas to plot our data on. Here we are using a subplot for the plots.
+fig, axs = plt.subplots(1, figsize=(15, 4), sharex=True)
+
+
+ik =0
+cs = axs.contourf(localSolarTimes_JB2008, latitudes_JB2008, JB2008_dens_reshaped[:,:,hi,time_array_JB2008[ik]].squeeze().T)
+axs.set_title('JB2008 density at 400 km, t = {} hrs'.format(time_array_JB2008[ik]), fontsize=18)
+axs.set_ylabel("Latitudes", fontsize=18)
+axs.tick_params(axis = 'both', which = 'major', labelsize = 16)
+    
+# Make a colorbar for the ContourSet returned by the contourf call.
+cbar = fig.colorbar(cs,ax=axs)
+cbar.ax.set_ylabel('Density')
+
+axs.set_xlabel("Local Solar Time", fontsize=18)  
+
 
 #%%
 """
 TODO: Plot the atmospheric density for 300 KM for all time indexes in
       time_array_JB2008
+# Look for data that correspond to an altitude of 400 KM
+alt = 300
+
+
+      
 """
+
+import matplotlib.pyplot as plt
+%matplotlib inline 
+# Look for data that correspond to an altitude of 300 KM
+alt = 300
+hi = np.where(altitudes_JB2008==alt)
+
+# Create a canvas to plot our data on. Here we are using a subplot with 5 spaces for the plots.
+fig, axs = plt.subplots((5), figsize=(15, 10*2), sharex=True)
+
+for ik in range (5):
+    cs = axs[ik].contourf(localSolarTimes_JB2008, latitudes_JB2008, JB2008_dens_reshaped[:,:,hi,time_array_JB2008[ik]].squeeze().T)
+    axs[ik].set_title('JB2008 density at 300 km, t = {} hrs'.format(time_array_JB2008[ik]), fontsize=18)
+    axs[ik].set_ylabel("Latitudes", fontsize=18)
+    axs[ik].tick_params(axis = 'both', which = 'major', labelsize = 16)
+    
+    # Make a colorbar for the ContourSet returned by the contourf call.
+    cbar = fig.colorbar(cs,ax = axs[ik])
+    cbar.ax.set_ylabel('Density')
+
+axs[ik].set_xlabel("Local Solar Time", fontsize=18)    
 
 #%%
 """
